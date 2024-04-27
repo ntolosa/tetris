@@ -1,0 +1,24 @@
+@mixin size {
+    width: 25px;
+    height: 25px;
+}
+
+.matrix {
+    border: solid;
+}
+
+.row {
+    display: flex;
+    width: fit-content;
+}
+
+.col {
+    @include size();
+}
+
+.item {
+    border-color: black;
+    border-style: solid;
+    background-color: yellow;
+    @include size();
+}
