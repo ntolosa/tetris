@@ -1,25 +1,21 @@
 import { useEffect, useState } from 'react';
 import './tetris.scss';
 
-const ficha = [[1]];
-
-const tetrisMatrix = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+const ficha = [
+    [1, 0, 0],
+    [1, 1, 1]
 ];
+
+const createArray = (count, item) => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+        arr.push(structuredClone(item));
+    }
+    return arr;
+}
+
+const row = createArray(10, 0);
+const tetrisMatrix = createArray(15, row);
 
 const fichaMatrix = [
     ...tetrisMatrix
@@ -32,17 +28,25 @@ const initialFichaMetadata = {
     ficha,
 };
 
+const moveFicha = (matrix, ficha, x, y) => {
+    const tempMatrix = structuredClone(matrix);
+    for (let i = 0; i < ficha.length; i++) {
+        for (let j = 0; j < ficha[i].length; j++) {
+            tempMatrix[i + x][j + y] = ficha[i][j];
+        }
+    }
+    return tempMatrix;
+}
+
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
 
     const changePosition = (prev) => {
         let tempX = prev.x;
         let tempY = prev.y;
-        if (tempX < prev.matrix.length - 1) {
-            let tempMatrix = prev.matrix;
-            tempMatrix[tempX][tempY] = 0;
+        if (tempX + ficha.length < prev.matrix.length) {
             tempX = tempX + 1;
-            tempMatrix[tempX][tempY] = 1;
+            const tempMatrix = moveFicha(fichaMatrix, ficha, tempX, tempY);
 
             return {
                 x: tempX,
