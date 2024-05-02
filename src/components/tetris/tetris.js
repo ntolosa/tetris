@@ -15,7 +15,7 @@ const createArray = (count, item) => {
 }
 
 const row = createArray(10, 0);
-const tetrisMatrix = createArray(15, row);
+const tetrisMatrix = createArray(20, row);
 
 const fichaMatrix = [
     ...tetrisMatrix
@@ -57,6 +57,18 @@ const Tetris = () => {
         }
         return prev;
     }
+    const manualMovement = (movement) => {
+        const tempY = fichaMetadata.y + movement;
+        if (tempY >= 0 && tempY + fichaMetadata.ficha[0].length <= fichaMatrix[0].length) {
+            const tempMatrix = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, tempY);
+            setFichaMetadata({
+                x: fichaMetadata.x,
+                y: tempY,
+                matrix: tempMatrix,
+                ficha
+            });
+        }
+    }
     useEffect(() => {
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
@@ -83,9 +95,16 @@ const Tetris = () => {
             });   
     };
     return (
-        <div className='matrix'>
-            { renderMatrix() }
+        <div>
+            <div className='matrix'>
+                { renderMatrix() }
+            </div>
+            <div>
+                <button onClick={() => manualMovement(-1)}>Left</button>
+                <button onClick={() => manualMovement(1)}>Right</button>
+            </div>
         </div>
+        
     )
 }
 
