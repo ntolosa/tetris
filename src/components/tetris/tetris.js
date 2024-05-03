@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import './tetris.scss';
+import fichas from '../../constants/fichas';
 
-const ficha = [
-    [1, 0, 0],
-    [1, 1, 1]
-];
+const getRandomFicha = () => {
+    const fichaId = Math.floor(Math.random() * fichas.length)
+    return fichas[fichaId];
+}
+const ficha = getRandomFicha();
 
 const createArray = (count, item) => {
     const arr = [];
@@ -38,24 +40,46 @@ const moveFicha = (matrix, ficha, x, y) => {
     return tempMatrix;
 }
 
+const flip = (originalFicha) => {
+    const newRow = createArray(originalFicha.length, 0);
+    const tempFicha = createArray(originalFicha[0].length, newRow);
+    for (let i = 0; i < originalFicha.length; i++) {
+        for (let j = 0; j < originalFicha[0].length; j++) {
+            tempFicha[j][originalFicha.length -1 - i] = originalFicha[i][j];
+        }
+    }
+    return tempFicha;
+}
+
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
 
     const changePosition = (prev) => {
         let tempX = prev.x;
         let tempY = prev.y;
-        if (tempX + ficha.length < prev.matrix.length) {
+        if (tempX + fichaMetadata.ficha.length < prev.matrix.length) {
             tempX = tempX + 1;
-            const tempMatrix = moveFicha(fichaMatrix, ficha, tempX, tempY);
+            const tempMatrix = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, tempY);
 
             return {
                 x: tempX,
                 y: tempY,
                 matrix: tempMatrix,
-                ficha,
+                ficha: fichaMetadata.ficha,
+            };
+        } else {
+            tempX = 0;
+            tempY = 5;
+            const tempFicha = getRandomFicha();
+            const tempMatrix = moveFicha(fichaMatrix, tempFicha, tempX, tempY);
+
+            return {
+                x: tempX,
+                y: tempY,
+                matrix: tempMatrix,
+                ficha: tempFicha,
             };
         }
-        return prev;
     }
     const manualMovement = (movement) => {
         const tempY = fichaMetadata.y + movement;
@@ -65,16 +89,27 @@ const Tetris = () => {
                 x: fichaMetadata.x,
                 y: tempY,
                 matrix: tempMatrix,
-                ficha
+                ficha: fichaMetadata.ficha,
             });
         }
     }
+
+    const flipFicha = () => {
+        const tempFicha = flip(fichaMetadata.ficha);
+        const tempMatrix = moveFicha(fichaMatrix, tempFicha, fichaMetadata.x, fichaMetadata.y);
+        setFichaMetadata({
+            ...fichaMetadata,
+            ficha: tempFicha,
+            matrix: tempMatrix,
+        });
+    }
+
     useEffect(() => {
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
         }, 1000);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [changePosition]);
     
     const renderItem = (col) => {
         if (col === 1) {
@@ -102,6 +137,7 @@ const Tetris = () => {
             <div>
                 <button onClick={() => manualMovement(-1)}>Left</button>
                 <button onClick={() => manualMovement(1)}>Right</button>
+                <button onClick={() => flipFicha()}>Flip</button>
             </div>
         </div>
         
