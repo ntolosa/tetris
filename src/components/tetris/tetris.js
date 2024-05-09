@@ -17,7 +17,7 @@ const createArray = (count, item) => {
 }
 
 const row = createArray(10, 0);
-const tetrisMatrix = createArray(20, row);
+const tetrisMatrix = createArray(10, row);
 
 const fichaMatrix = [
     ...tetrisMatrix
@@ -30,14 +30,31 @@ const initialFichaMetadata = {
     ficha,
 };
 
-const moveFicha = (matrix, ficha, x, y) => {
+const moveFicha = (matrix, ficha, x, y, reset) => {
     const tempMatrix = structuredClone(matrix);
     for (let i = 0; i < ficha.length; i++) {
         for (let j = 0; j < ficha[i].length; j++) {
-            tempMatrix[i + x][j + y] = ficha[i][j];
+            if (reset) {
+                tempMatrix[i + x][j + y] = 0;
+            } else {
+                tempMatrix[i + x][j + y] = ficha[i][j] || tempMatrix[i + x][j + y];
+            }
         }
     }
     return tempMatrix;
+}
+
+const checkCoalition = (previos, next) => {
+    let sum = 0;
+    for (let i = 0; i < previos.length; i++) {
+        for (let j = 0; j < previos[i].length; j++) {
+            sum = previos[i][j] + next [i][j];
+            if (sum > 1) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 const flip = (originalFicha) => {
@@ -54,12 +71,33 @@ const flip = (originalFicha) => {
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
 
+    const newFicha = () => {
+        const tempX = 0;
+        const tempY = 5;
+        const tempFicha = getRandomFicha();
+        const tempMatrix = moveFicha(fichaMetadata.matrix, tempFicha, tempX, tempY, false);
+
+        return {
+            x: tempX,
+            y: tempY,
+            matrix: tempMatrix,
+            ficha: tempFicha,
+        };
+    }
+
     const changePosition = (prev) => {
         let tempX = prev.x;
         let tempY = prev.y;
         if (tempX + fichaMetadata.ficha.length < prev.matrix.length) {
+            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, tempX, tempY, true);
             tempX = tempX + 1;
-            const tempMatrix = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, tempY);
+            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, tempY, false);
+            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, tempX, tempY, false);
+
+            const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
+            if (coalition) {
+                return newFicha();
+            }
 
             return {
                 x: tempX,
@@ -68,40 +106,38 @@ const Tetris = () => {
                 ficha: fichaMetadata.ficha,
             };
         } else {
-            tempX = 0;
-            tempY = 5;
-            const tempFicha = getRandomFicha();
-            const tempMatrix = moveFicha(fichaMatrix, tempFicha, tempX, tempY);
-
-            return {
-                x: tempX,
-                y: tempY,
-                matrix: tempMatrix,
-                ficha: tempFicha,
-            };
+            return newFicha();
         }
     }
     const manualMovement = (movement) => {
         const tempY = fichaMetadata.y + movement;
         if (tempY >= 0 && tempY + fichaMetadata.ficha[0].length <= fichaMatrix[0].length) {
-            const tempMatrix = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, tempY);
-            setFichaMetadata({
-                x: fichaMetadata.x,
-                y: tempY,
-                matrix: tempMatrix,
-                ficha: fichaMetadata.ficha,
-            });
+            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true)
+            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, fichaMetadata.x, tempY, false);
+            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, tempY, false);
+            if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
+                setFichaMetadata({
+                    x: fichaMetadata.x,
+                    y: tempY,
+                    matrix: tempMatrix,
+                    ficha: fichaMetadata.ficha,
+                });
+            }
         }
     }
 
     const flipFicha = () => {
         const tempFicha = flip(fichaMetadata.ficha);
-        const tempMatrix = moveFicha(fichaMatrix, tempFicha, fichaMetadata.x, fichaMetadata.y);
-        setFichaMetadata({
-            ...fichaMetadata,
-            ficha: tempFicha,
-            matrix: tempMatrix,
-        });
+        const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true);
+        const tempMatrix = moveFicha(tempMatrixNoFicha, tempFicha, fichaMetadata.x, fichaMetadata.y);
+        const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, false);
+        if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)){
+            setFichaMetadata({
+                ...fichaMetadata,
+                ficha: tempFicha,
+                matrix: tempMatrix,
+            });
+        }
     }
 
     useEffect(() => {
