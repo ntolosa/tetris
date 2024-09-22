@@ -17,7 +17,7 @@ const createArray = (count, item) => {
 }
 
 const row = createArray(10, 0);
-const tetrisMatrix = createArray(10, row);
+const tetrisMatrix = createArray(20, row);
 
 const fichaMatrix = [
     ...tetrisMatrix
@@ -48,7 +48,7 @@ const checkCoalition = (previos, next) => {
     let sum = 0;
     for (let i = 0; i < previos.length; i++) {
         for (let j = 0; j < previos[i].length; j++) {
-            sum = previos[i][j] + next [i][j];
+            sum = previos[i][j] + next[i][j];
             if (sum > 1) {
                 return true;
             }
@@ -71,11 +71,11 @@ const flip = (originalFicha) => {
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
 
-    const newFicha = () => {
+    const newFicha = (matrix) => {
         const tempX = 0;
         const tempY = 5;
         const tempFicha = getRandomFicha();
-        const tempMatrix = moveFicha(fichaMetadata.matrix, tempFicha, tempX, tempY, false);
+        const tempMatrix = moveFicha(matrix || fichaMetadata.matrix, tempFicha, tempX, tempY, false);
 
         return {
             x: tempX,
@@ -96,7 +96,7 @@ const Tetris = () => {
 
             const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
             if (coalition) {
-                return newFicha();
+                return newFicha(completeLine());
             }
 
             return {
@@ -106,9 +106,23 @@ const Tetris = () => {
                 ficha: fichaMetadata.ficha,
             };
         } else {
-            return newFicha();
+            return newFicha(completeLine());
         }
-    }
+    };
+
+    const completeLine = () => {
+        const matrixResult = fichaMetadata.matrix.reduce((tempMatrix, row) => {
+            if (!row.every(Boolean)) {
+                tempMatrix.push([...row]);
+            }
+            return tempMatrix;
+        }, []);
+        for (let i = 0; i < initialFichaMetadata.matrix.length - matrixResult.length; i++) {
+            matrixResult.unshift(structuredClone(row));
+        }
+        return matrixResult;
+    };
+
     const manualMovement = (movement) => {
         const tempY = fichaMetadata.y + movement;
         if (tempY >= 0 && tempY + fichaMetadata.ficha[0].length <= fichaMatrix[0].length) {
@@ -143,7 +157,7 @@ const Tetris = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
-        }, 1000);
+        }, 500);
         return () => clearInterval(intervalId);
     }, [changePosition]);
     
