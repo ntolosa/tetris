@@ -160,6 +160,22 @@ const Tetris = () => {
         }, 500);
         return () => clearInterval(intervalId);
     }, [changePosition]);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'ArrowRight') {
+                manualMovement(1);
+              } else if (event.key === 'ArrowLeft') {
+                manualMovement(-1);
+            } else if (event.key === ' ') { // Espacio
+                flipFicha();
+              }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+        };
+      }, [changePosition]);
     
     const renderItem = (col) => {
         if (col === 1) {
@@ -180,21 +196,21 @@ const Tetris = () => {
             });   
     };
     return (
-        <>
+        <div className='game'>
             <div className='tetris'>
                 <div className='matrix'>
                     { renderMatrix(fichaMetadata.matrix) }
                 </div>
-                <div className='next'>
-                    { renderMatrix(fichaMetadata.nextFicha) }
+                <div className='controls'>
+                    <button onClick={() => manualMovement(-1)}>Left</button>
+                    <button onClick={() => manualMovement(1)}>Right</button>
+                    <button onClick={() => flipFicha()}>Flip</button>
                 </div>
             </div>
-            <div>
-                <button onClick={() => manualMovement(-1)}>Left</button>
-                <button onClick={() => manualMovement(1)}>Right</button>
-                <button onClick={() => flipFicha()}>Flip</button>
+            <div className='next'>
+                { renderMatrix(fichaMetadata.nextFicha) }
             </div>
-        </>
+        </div>
     )
 }
 

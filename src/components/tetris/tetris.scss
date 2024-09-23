@@ -3,9 +3,14 @@
     height: 25px;
 }
 
-.tetris {
+.game {
     display: flex;
     flex-direction: row;
+}
+
+.tetris {
+    display: flex;
+    flex-direction: column;
 }
 
 .matrix {
@@ -21,9 +26,18 @@
     @include size();
 }
 
+.controls {
+    margin: auto;
+}
+
 .item {
     border-color: black;
     border-style: solid;
     background-color: yellow;
     @include size();
+}
+
+.next {
+    margin-left: 5px;
+    width: 100px;
 }
