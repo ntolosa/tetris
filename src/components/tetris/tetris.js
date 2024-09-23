@@ -28,6 +28,7 @@ const initialFichaMetadata = {
     y: 5,
     matrix: fichaMatrix,
     ficha,
+    nextFicha: getRandomFicha(),
 };
 
 const moveFicha = (matrix, ficha, x, y, reset) => {
@@ -74,14 +75,14 @@ const Tetris = () => {
     const newFicha = (matrix) => {
         const tempX = 0;
         const tempY = 5;
-        const tempFicha = getRandomFicha();
-        const tempMatrix = moveFicha(matrix || fichaMetadata.matrix, tempFicha, tempX, tempY, false);
+        const tempMatrix = moveFicha(matrix || fichaMetadata.matrix, fichaMetadata.nextFicha, tempX, tempY, false);
 
         return {
             x: tempX,
             y: tempY,
             matrix: tempMatrix,
-            ficha: tempFicha,
+            ficha: fichaMetadata.nextFicha,
+            nextFicha: getRandomFicha(),
         };
     }
 
@@ -100,10 +101,10 @@ const Tetris = () => {
             }
 
             return {
+                ...fichaMetadata,
                 x: tempX,
                 y: tempY,
                 matrix: tempMatrix,
-                ficha: fichaMetadata.ficha,
             };
         } else {
             return newFicha(completeLine());
@@ -131,10 +132,9 @@ const Tetris = () => {
             const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, tempY, false);
             if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
                 setFichaMetadata({
-                    x: fichaMetadata.x,
+                    ...fichaMetadata,
                     y: tempY,
                     matrix: tempMatrix,
-                    ficha: fichaMetadata.ficha,
                 });
             }
         }
@@ -166,8 +166,8 @@ const Tetris = () => {
             return <div className='item' />
         }
     }
-    const renderMatrix = () => {
-        return fichaMetadata.matrix.map((row, i) => {
+    const renderMatrix = (matrix) => {
+        return matrix.map((row, i) => {
             return <div key={i} className="row">
                 {
                     row.map((col, j) => (<div key={j} className="col">
@@ -180,17 +180,21 @@ const Tetris = () => {
             });   
     };
     return (
-        <div>
-            <div className='matrix'>
-                { renderMatrix() }
+        <>
+            <div className='tetris'>
+                <div className='matrix'>
+                    { renderMatrix(fichaMetadata.matrix) }
+                </div>
+                <div className='next'>
+                    { renderMatrix(fichaMetadata.nextFicha) }
+                </div>
             </div>
             <div>
                 <button onClick={() => manualMovement(-1)}>Left</button>
                 <button onClick={() => manualMovement(1)}>Right</button>
                 <button onClick={() => flipFicha()}>Flip</button>
             </div>
-        </div>
-        
+        </>
     )
 }
 
