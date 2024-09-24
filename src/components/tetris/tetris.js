@@ -157,6 +157,10 @@ const Tetris = () => {
     }
 
     const flipFicha = () => {
+        if (fichaMetadata.ficha.length + fichaMetadata.y > fichaMetadata.matrix[0].length) {
+            // flip is outside the tetris matrix
+            return;
+        }
         const tempFicha = flip(fichaMetadata.ficha);
         const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true);
         const tempMatrix = moveFicha(tempMatrixNoFicha, tempFicha, fichaMetadata.x, fichaMetadata.y);
