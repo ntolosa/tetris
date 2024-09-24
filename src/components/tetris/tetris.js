@@ -140,6 +140,22 @@ const Tetris = () => {
         }
     }
 
+    const manualMovementVertical = (movement) => {
+        const tempX = fichaMetadata.x + movement;
+        if (tempX >= 0 && tempX + fichaMetadata.ficha.length <= fichaMatrix.length) {
+            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true)
+            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, tempX, fichaMetadata.y, false);
+            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, fichaMetadata.y, false);
+            if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
+                setFichaMetadata({
+                    ...fichaMetadata,
+                    x: tempX,
+                    matrix: tempMatrix,
+                });
+            }
+        }
+    }
+
     const flipFicha = () => {
         const tempFicha = flip(fichaMetadata.ficha);
         const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true);
@@ -165,8 +181,10 @@ const Tetris = () => {
         const handleKeyDown = (event) => {
             if (event.key === 'ArrowRight') {
                 manualMovement(1);
-              } else if (event.key === 'ArrowLeft') {
+            } else if (event.key === 'ArrowLeft') {
                 manualMovement(-1);
+            } else if (event.key === 'ArrowDown') {
+                manualMovementVertical(1);
             } else if (event.key === ' ') { // Espacio
                 flipFicha();
               }
@@ -204,6 +222,7 @@ const Tetris = () => {
                 <div className='controls'>
                     <button onClick={() => manualMovement(-1)}>Left</button>
                     <button onClick={() => manualMovement(1)}>Right</button>
+                    <button onClick={() => manualMovementVertical(1)}>Down</button>
                     <button onClick={() => flipFicha()}>Flip</button>
                 </div>
             </div>
