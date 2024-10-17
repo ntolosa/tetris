@@ -49,7 +49,9 @@ const checkCoalition = (previos, next) => {
     let sum = 0;
     for (let i = 0; i < previos.length; i++) {
         for (let j = 0; j < previos[i].length; j++) {
-            sum = previos[i][j] + next[i][j];
+            const prevValue = previos[i][j] !== 0 ? 1 : 0;
+            const nextValue = next[i][j] !== 0 ? 1 : 0;
+            sum = prevValue + nextValue;
             if (sum > 1) {
                 return true;
             }
@@ -200,8 +202,8 @@ const Tetris = () => {
       }, [changePosition]);
     
     const renderItem = (col) => {
-        if (col === 1) {
-            return <div className='item' />
+        if (col !== 0) {
+            return <div className='item' style={{ backgroundColor: col }}/>
         }
     }
     const renderMatrix = (matrix) => {
