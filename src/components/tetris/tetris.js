@@ -224,10 +224,18 @@ const Tetris = () => {
                     { renderMatrix(fichaMetadata.matrix) }
                 </div>
                 <div className='controls'>
-                    <button onClick={() => manualMovement(-1)}>Left</button>
-                    <button onClick={() => manualMovement(1)}>Right</button>
-                    <button onClick={() => manualMovementVertical(1)}>Down</button>
-                    <button onClick={() => flipFicha()}>Flip</button>
+                    <div className='controls__movement'>
+                        <div className='controls_row'>
+                            <button onClick={() => manualMovement(-1)}>Left</button>
+                            <button onClick={() => manualMovement(1)}>Right</button>
+                        </div>
+                        <div className='controls__row'>
+                            <button onClick={() => manualMovementVertical(1)}>Down</button>
+                        </div>
+                    </div>
+                    <div className='controls__flip'>
+                        <button onClick={() => flipFicha()}>Flip</button>
+                    </div>
                 </div>
             </div>
             <div className='next'>

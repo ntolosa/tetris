@@ -28,6 +28,23 @@
 
 .controls {
     margin: auto;
+    display: flex;
+    width: 100%;
+    margin-top: 15px;
+
+    &__movement {
+        width: 75%;
+        text-align: center;
+    }
+
+    &__flip {
+        width: 25%;
+        text-align: center;
+    }
+
+    &__row {
+        display: block;
+    }
 }
 
 .item {
