@@ -73,6 +73,7 @@ const flip = (originalFicha) => {
 
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
+    const [isEndGame, setIsEndGame] = useState(false);
 
     const newFicha = (matrix) => {
         const tempX = 0;
@@ -99,6 +100,10 @@ const Tetris = () => {
 
             const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
             if (coalition) {
+                const fichaToRender = moveFicha(fichaMatrix, fichaMetadata.ficha, 0, 5);
+                if(checkCoalition(tempMatrixWithFicha, fichaToRender)) {
+                    setIsEndGame(true);
+                }
                 return newFicha(completeLine());
             }
 
@@ -177,11 +182,14 @@ const Tetris = () => {
     }
 
     useEffect(() => {
+        if (isEndGame) {
+            return;
+        }
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
         }, 500);
         return () => clearInterval(intervalId);
-    }, [changePosition]);
+    }, [changePosition, isEndGame]);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
