@@ -3,7 +3,7 @@ import Tetris from '../tetris/tetris';
 
 function App() {
   return (
-    <div className='app'>
+    <div className='app' data-testid="app">
       <Tetris />
     </div>
   );

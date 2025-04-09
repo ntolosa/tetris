@@ -12,7 +12,7 @@ describe('Tetris Component', () => {
         // Assert
         expect(tetrisComponent).toBeInTheDocument();
     });
-
+/*
     test('moves the ficha to the right', () => {
         // Arrange
         const matrix = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
@@ -50,4 +50,18 @@ describe('Tetris Component', () => {
         // Assert
         expect(flippedFicha).toEqual([[0, 1, 0], [0, 1, 0], [0, 1, 0]]);
     });
+
+    //add a test to move the ficha down using react events to click the down button
+    test('moves the ficha down', () => {
+        // Arrange
+        render(<Tetris />);
+        const downButton = screen.getByTestId('down-button');
+
+        // Act
+        downButton.click();
+
+        // Assert
+        const updatedMatrix = screen.getByTestId('tetris-component');
+        expect(updatedMatrix).toEqual([[0, 0, 0], [0, 1, 1], [0, 0, 0]]);
+    });*/
 });

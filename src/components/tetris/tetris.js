@@ -228,7 +228,7 @@ const Tetris = () => {
             });   
     };
     return (
-        <div className='game'>
+        <div className='game' data-testid="tetris-component">
             <div className='tetris'>
                 <div className='matrix'>
                     { renderMatrix(fichaMetadata.matrix) }
@@ -240,7 +240,7 @@ const Tetris = () => {
                             <button onClick={() => manualMovement(1)}>Right</button>
                         </div>
                         <div className='controls__row'>
-                            <button onClick={() => manualMovementVertical(1)}>Down</button>
+                            <button data-testid="down-button" onClick={() => manualMovementVertical(1)}>Down</button>
                         </div>
                     </div>
                     <div className='controls__flip'>
