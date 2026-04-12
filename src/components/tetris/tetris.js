@@ -65,7 +65,7 @@ const flip = (originalFicha) => {
     const tempFicha = createArray(originalFicha[0].length, newRow);
     for (let i = 0; i < originalFicha.length; i++) {
         for (let j = 0; j < originalFicha[0].length; j++) {
-            tempFicha[j][originalFicha.length -1 - i] = originalFicha[i][j];
+            tempFicha[j][originalFicha.length - 1 - i] = originalFicha[i][j];
         }
     }
     return tempFicha;
@@ -101,7 +101,7 @@ const Tetris = () => {
             const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
             if (coalition) {
                 const fichaToRender = moveFicha(fichaMatrix, fichaMetadata.ficha, 0, 5);
-                if(checkCoalition(tempMatrixWithFicha, fichaToRender)) {
+                if (checkCoalition(tempMatrixWithFicha, fichaToRender)) {
                     setIsEndGame(true);
                 }
                 return newFicha(completeLine());
@@ -125,7 +125,7 @@ const Tetris = () => {
             }
             return tempMatrix;
         }, []);
-        for (let i = 0; i < initialFichaMetadata.matrix.length - matrixResult.length; i++) {
+        while (matrixResult.length < initialFichaMetadata.matrix.length) {
             matrixResult.unshift(structuredClone(row));
         }
         return matrixResult;
@@ -172,7 +172,7 @@ const Tetris = () => {
         const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true);
         const tempMatrix = moveFicha(tempMatrixNoFicha, tempFicha, fichaMetadata.x, fichaMetadata.y);
         const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, false);
-        if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)){
+        if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
             setFichaMetadata({
                 ...fichaMetadata,
                 ficha: tempFicha,
@@ -201,17 +201,17 @@ const Tetris = () => {
                 manualMovementVertical(1);
             } else if (event.key === ' ') { // Espacio
                 flipFicha();
-              }
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => {
-          window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keydown', handleKeyDown);
         };
-      }, [changePosition]);
-    
+    }, [changePosition]);
+
     const renderItem = (col) => {
         if (col !== 0) {
-            return <div className='item' style={{ backgroundColor: col }}/>
+            return <div className='item' style={{ backgroundColor: col }} />
         }
     }
     const renderMatrix = (matrix) => {
@@ -224,14 +224,14 @@ const Tetris = () => {
                         }
                     </div>))
                 }
-                </div>  
-            });   
+            </div>
+        });
     };
     return (
         <div className='game' data-testid="tetris-component">
             <div className='tetris'>
                 <div className='matrix'>
-                    { renderMatrix(fichaMetadata.matrix) }
+                    {renderMatrix(fichaMetadata.matrix)}
                 </div>
                 <div className='controls'>
                     <div className='controls__movement'>
@@ -249,7 +249,7 @@ const Tetris = () => {
                 </div>
             </div>
             <div className='next'>
-                { renderMatrix(fichaMetadata.nextFicha) }
+                {renderMatrix(fichaMetadata.nextFicha)}
             </div>
         </div>
     )
