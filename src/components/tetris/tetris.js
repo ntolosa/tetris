@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './tetris.scss';
 import fichas from '../../constants/fichas';
 
@@ -75,51 +75,22 @@ const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
     const [isEndGame, setIsEndGame] = useState(false);
 
-    const newFicha = (matrix) => {
+    const newFicha = (prev, matrix) => {
         const tempX = 0;
         const tempY = 5;
-        const tempMatrix = moveFicha(matrix || fichaMetadata.matrix, fichaMetadata.nextFicha, tempX, tempY, false);
+        const tempMatrix = moveFicha(matrix || prev.matrix, prev.nextFicha, tempX, tempY, false);
 
         return {
             x: tempX,
             y: tempY,
             matrix: tempMatrix,
-            ficha: fichaMetadata.nextFicha,
+            ficha: prev.nextFicha,
             nextFicha: getRandomFicha(),
         };
     }
 
-    const changePosition = (prev) => {
-        let tempX = prev.x;
-        let tempY = prev.y;
-        if (tempX + fichaMetadata.ficha.length < prev.matrix.length) {
-            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, tempX, tempY, true);
-            tempX = tempX + 1;
-            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, tempY, false);
-            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, tempX, tempY, false);
-
-            const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
-            if (coalition) {
-                const fichaToRender = moveFicha(fichaMatrix, fichaMetadata.ficha, 0, 5);
-                if (checkCoalition(tempMatrixWithFicha, fichaToRender)) {
-                    setIsEndGame(true);
-                }
-                return newFicha(completeLine());
-            }
-
-            return {
-                ...fichaMetadata,
-                x: tempX,
-                y: tempY,
-                matrix: tempMatrix,
-            };
-        } else {
-            return newFicha(completeLine());
-        }
-    };
-
-    const completeLine = () => {
-        const matrixResult = fichaMetadata.matrix.reduce((tempMatrix, row) => {
+    const completeLine = (prev) => {
+        const matrixResult = prev.matrix.reduce((tempMatrix, row) => {
             if (!row.every(Boolean)) {
                 tempMatrix.push([...row]);
             }
@@ -131,55 +102,92 @@ const Tetris = () => {
         return matrixResult;
     };
 
-    const manualMovement = (movement) => {
-        const tempY = fichaMetadata.y + movement;
-        if (tempY >= 0 && tempY + fichaMetadata.ficha[0].length <= fichaMatrix[0].length) {
-            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true)
-            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, fichaMetadata.x, tempY, false);
-            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, tempY, false);
-            if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
-                setFichaMetadata({
-                    ...fichaMetadata,
-                    y: tempY,
-                    matrix: tempMatrix,
-                });
-            }
-        }
-    }
+    const changePosition = useCallback((prev) => {
+        let tempX = prev.x;
+        let tempY = prev.y;
+        if (tempX + prev.ficha.length < prev.matrix.length) {
+            const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, tempX, tempY, true);
+            tempX = tempX + 1;
+            const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, tempX, tempY, false);
+            const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, tempX, tempY, false);
 
-    const manualMovementVertical = (movement) => {
-        const tempX = fichaMetadata.x + movement;
-        if (tempX >= 0 && tempX + fichaMetadata.ficha.length <= fichaMatrix.length) {
-            const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true)
-            const tempMatrix = moveFicha(tempMatrixNoFicha, fichaMetadata.ficha, tempX, fichaMetadata.y, false);
-            const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, tempX, fichaMetadata.y, false);
-            if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
-                setFichaMetadata({
-                    ...fichaMetadata,
-                    x: tempX,
-                    matrix: tempMatrix,
-                });
+            const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
+            if (coalition) {
+                const fichaToRender = moveFicha(fichaMatrix, prev.ficha, 0, 5);
+                if (checkCoalition(tempMatrixWithFicha, fichaToRender)) {
+                    setIsEndGame(true);
+                }
+                return newFicha(prev, completeLine(prev));
             }
-        }
-    }
 
-    const flipFicha = () => {
-        if (fichaMetadata.ficha.length + fichaMetadata.y > fichaMetadata.matrix[0].length) {
-            // flip is outside the tetris matrix
-            return;
-        }
-        const tempFicha = flip(fichaMetadata.ficha);
-        const tempMatrixNoFicha = moveFicha(fichaMetadata.matrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, true);
-        const tempMatrix = moveFicha(tempMatrixNoFicha, tempFicha, fichaMetadata.x, fichaMetadata.y);
-        const tempMatrixWithFicha = moveFicha(fichaMatrix, fichaMetadata.ficha, fichaMetadata.x, fichaMetadata.y, false);
-        if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
-            setFichaMetadata({
-                ...fichaMetadata,
-                ficha: tempFicha,
+            return {
+                ...prev,
+                x: tempX,
+                y: tempY,
                 matrix: tempMatrix,
-            });
+            };
+        } else {
+            return newFicha(prev, completeLine(prev));
         }
-    }
+    }, []);
+
+    const manualMovement = useCallback((movement) => {
+        setFichaMetadata(prev => {
+            const tempY = prev.y + movement;
+            if (tempY >= 0 && tempY + prev.ficha[0].length <= fichaMatrix[0].length) {
+                const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, prev.x, prev.y, true)
+                const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, prev.x, tempY, false);
+                const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, prev.x, tempY, false);
+                if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
+                    return {
+                        ...prev,
+                        y: tempY,
+                        matrix: tempMatrix,
+                    };
+                }
+            }
+            return prev;
+        });
+    }, []);
+
+    const manualMovementVertical = useCallback((movement) => {
+        setFichaMetadata(prev => {
+            const tempX = prev.x + movement;
+            if (tempX >= 0 && tempX + prev.ficha.length <= fichaMatrix.length) {
+                const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, prev.x, prev.y, true)
+                const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, tempX, prev.y, false);
+                const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, tempX, prev.y, false);
+                if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
+                    return {
+                        ...prev,
+                        x: tempX,
+                        matrix: tempMatrix,
+                    };
+                }
+            }
+            return prev;
+        });
+    }, []);
+
+    const flipFicha = useCallback(() => {
+        setFichaMetadata(prev => {
+            if (prev.ficha.length + prev.y > prev.matrix[0].length) {
+                return prev;
+            }
+            const tempFicha = flip(prev.ficha);
+            const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, prev.x, prev.y, true);
+            const tempMatrix = moveFicha(tempMatrixNoFicha, tempFicha, prev.x, prev.y);
+            const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, prev.x, prev.y, false);
+            if (!checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha)) {
+                return {
+                    ...prev,
+                    ficha: tempFicha,
+                    matrix: tempMatrix,
+                };
+            }
+            return prev;
+        });
+    }, []);
 
     useEffect(() => {
         if (isEndGame) {
@@ -207,7 +215,7 @@ const Tetris = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [changePosition]);
+    }, [manualMovement, manualMovementVertical, flipFicha]);
 
     const renderItem = (col) => {
         if (col !== 0) {
