@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Tetris from './tetris';
 
 describe('Tetris Component', () => {
@@ -11,6 +11,33 @@ describe('Tetris Component', () => {
 
         // Assert
         expect(tetrisComponent).toBeInTheDocument();
+    });
+
+    test('pause button renders with "Pausa" label', () => {
+        // Arrange
+        render(<Tetris />);
+
+        // Act
+        const pauseButton = screen.getByTestId('pause-button');
+
+        // Assert
+        expect(pauseButton).toBeInTheDocument();
+        expect(pauseButton).toHaveTextContent('Pausa');
+    });
+
+    test('clicking pause button shows overlay and changes label to "Reanudar"', () => {
+        // Arrange
+        render(<Tetris />);
+        const pauseButton = screen.getByTestId('pause-button');
+
+        // Act
+        fireEvent.click(pauseButton);
+
+        // Assert
+        const overlay = screen.getByTestId('pause-overlay');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveTextContent('Pausado');
+        expect(pauseButton).toHaveTextContent('Reanudar');
     });
 /*
     test('moves the ficha to the right', () => {

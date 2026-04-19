@@ -19,8 +19,8 @@
 
 **Purpose**: No new project setup needed — the project is fully initialized. This phase adds the foundational state that all user stories depend on.
 
-- [ ] T001 Add `isPaused` state variable (`useState(false)`) to the Tetris component in `src/components/tetris/tetris.js`
-- [ ] T002 Add `togglePause` callback (`useCallback`) that toggles `isPaused` only when `isEndGame` is false in `src/components/tetris/tetris.js`
+- [x] T001 Add `isPaused` state variable (`useState(false)`) to the Tetris component in `src/components/tetris/tetris.js`
+- [x] T002 Add `togglePause` callback (`useCallback`) that toggles `isPaused` only when `isEndGame` is false in `src/components/tetris/tetris.js`
 
 ---
 
@@ -30,8 +30,8 @@
 
 **⚠️ CRITICAL**: US1/US2/US3 all need the toggle mechanism in place first.
 
-- [ ] T003 Add keyboard listener for "P", "p", and "Escape" keys to call `togglePause()` in the existing `handleKeyDown` function in `src/components/tetris/tetris.js`. The pause keys must be handled before the `isPaused` guard so they always work.
-- [ ] T004 Add a pause/resume button (`<button>`) to the controls section in the JSX of `src/components/tetris/tetris.js`. Place it inside a new `<div className='controls__pause'>` above `controls__movement`. The button calls `togglePause` on click and is disabled when `isEndGame` is true.
+- [x] T003 Add keyboard listener for "P", "p", and "Escape" keys to call `togglePause()` in the existing `handleKeyDown` function in `src/components/tetris/tetris.js`. The pause keys must be handled before the `isPaused` guard so they always work.
+- [x] T004 Add a pause/resume button (`<button>`) to the controls section in the JSX of `src/components/tetris/tetris.js`. Place it inside a new `<div className='controls__pause'>` above `controls__movement`. The button calls `togglePause` on click and is disabled when `isEndGame` is true.
 
 **Checkpoint**: At this point, pressing "P"/"Escape" or clicking the button toggles `isPaused` state (verifiable via React DevTools).
 
@@ -45,9 +45,9 @@
 
 ### Implementation for User Story 1 & 2
 
-- [ ] T005 [US1] Gate the gravity `setInterval` on `isPaused`: modify the timer `useEffect` to include `isPaused` in its dependency array and add `isPaused` to the early-return guard alongside `isEndGame` in `src/components/tetris/tetris.js`
-- [ ] T006 [US1] Block keyboard movement input when paused: add an `if (isPaused) return;` guard after the pause key handler in `handleKeyDown` so ArrowLeft, ArrowRight, ArrowDown, and Space are ignored in `src/components/tetris/tetris.js`
-- [ ] T007 [US2] Guard on-screen button handlers when paused: wrap `onClick` handlers for Left, Right, Down, and Flip buttons with `!isPaused &&` checks in `src/components/tetris/tetris.js`
+- [x] T005 [US1] Gate the gravity `setInterval` on `isPaused`: modify the timer `useEffect` to include `isPaused` in its dependency array and add `isPaused` to the early-return guard alongside `isEndGame` in `src/components/tetris/tetris.js`
+- [x] T006 [US1] Block keyboard movement input when paused: add an `if (isPaused) return;` guard after the pause key handler in `handleKeyDown` so ArrowLeft, ArrowRight, ArrowDown, and Space are ignored in `src/components/tetris/tetris.js`
+- [x] T007 [US2] Guard on-screen button handlers when paused: wrap `onClick` handlers for Left, Right, Down, and Flip buttons with `!isPaused &&` checks in `src/components/tetris/tetris.js`
 
 **Checkpoint**: Pause/resume fully works — gravity stops/starts, all input is blocked/unblocked. This is the MVP.
 
@@ -61,11 +61,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T008 [P] [US3] Add pause overlay and button styles to `src/components/tetris/tetris.scss`: add `.pause-overlay` class (position absolute, inset 0, flexbox centering, semi-transparent background, white bold text, z-index 10) and `.controls__pause` class (width 100%, text-align center, margin-bottom 10px). Add `position: relative` to the `.matrix` class.
-- [ ] T009 [US3] Render empty board when paused: modify the matrix JSX in `src/components/tetris/tetris.js` to render `fichaMatrix` (all zeros) instead of `fichaMetadata.matrix` when `isPaused` is true, preserving the grid outline while hiding all blocks
-- [ ] T010 [US3] Add "Pausado" overlay: add a conditional `<div className='pause-overlay'>Pausado</div>` inside the `.matrix` container that renders only when `isPaused` is true in `src/components/tetris/tetris.js`
-- [ ] T011 [US3] Hide next piece preview when paused: wrap the `renderMatrix(fichaMetadata.nextFicha)` call with `!isPaused &&` condition in the `.next` div in `src/components/tetris/tetris.js`
-- [ ] T012 [US3] Set dynamic button label: change the pause button text to display "Reanudar" when `isPaused` is true and "Pausa" when false in `src/components/tetris/tetris.js`
+- [x] T008 [P] [US3] Add pause overlay and button styles to `src/components/tetris/tetris.scss`: add `.pause-overlay` class (position absolute, inset 0, flexbox centering, semi-transparent background, white bold text, z-index 10) and `.controls__pause` class (width 100%, text-align center, margin-bottom 10px). Add `position: relative` to the `.matrix` class.
+- [x] T009 [US3] Render empty board when paused: modify the matrix JSX in `src/components/tetris/tetris.js` to render `fichaMatrix` (all zeros) instead of `fichaMetadata.matrix` when `isPaused` is true, preserving the grid outline while hiding all blocks
+- [x] T010 [US3] Add "Pausado" overlay: add a conditional `<div className='pause-overlay'>Pausado</div>` inside the `.matrix` container that renders only when `isPaused` is true in `src/components/tetris/tetris.js`
+- [x] T011 [US3] Hide next piece preview when paused: wrap the `renderMatrix(fichaMetadata.nextFicha)` call with `!isPaused &&` condition in the `.next` div in `src/components/tetris/tetris.js`
+- [x] T012 [US3] Set dynamic button label: change the pause button text to display "Reanudar" when `isPaused` is true and "Pausa" when false in `src/components/tetris/tetris.js`
 
 **Checkpoint**: All visual feedback is complete — board hides content, overlay shows, next piece hidden, button label toggles.
 
@@ -75,11 +75,11 @@
 
 **Purpose**: Tests and edge case handling across all user stories.
 
-- [ ] T013 [P] Add test: pause button renders with "Pausa" label in `src/components/tetris/tetris.spec.js`
-- [ ] T014 [P] Add test: clicking pause button shows "Pausado" overlay and changes button label to "Reanudar" in `src/components/tetris/tetris.spec.js`
-- [ ] T015 Verify edge case: pressing pause when `isEndGame` is true does nothing — confirm `togglePause` guard works correctly in `src/components/tetris/tetris.js`
-- [ ] T016 Run full test suite (`npm test`) and verify all tests pass
-- [ ] T017 Run quickstart validation: start app (`npm start`), manually test pause/resume via keyboard and button per `specs/001-game-pause/quickstart.md`
+- [x] T013 [P] Add test: pause button renders with "Pausa" label in `src/components/tetris/tetris.spec.js`
+- [x] T014 [P] Add test: clicking pause button shows "Pausado" overlay and changes button label to "Reanudar" in `src/components/tetris/tetris.spec.js`
+- [x] T015 Verify edge case: pressing pause when `isEndGame` is true does nothing — confirm `togglePause` guard works correctly in `src/components/tetris/tetris.js`
+- [x] T016 Run full test suite (`npm test`) and verify all tests pass
+- [x] T017 Run quickstart validation: start app (`npm start`), manually test pause/resume via keyboard and button per `specs/001-game-pause/quickstart.md`
 
 ---
 

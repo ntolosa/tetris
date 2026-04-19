@@ -15,6 +15,7 @@
 
 .matrix {
     border: solid;
+    position: relative;
 }
 
 .row {
@@ -42,6 +43,12 @@
         text-align: center;
     }
 
+    &__pause {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
     &__row {
         display: block;
     }
@@ -57,4 +64,20 @@
 .next {
     margin-left: 5px;
     width: 100px;
+}
+
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 10;
 }
