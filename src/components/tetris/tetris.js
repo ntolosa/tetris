@@ -74,6 +74,13 @@ const flip = (originalFicha) => {
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
     const [isEndGame, setIsEndGame] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+
+    const togglePause = useCallback(() => {
+        if (!isEndGame) {
+            setIsPaused(prev => !prev);
+        }
+    }, [isEndGame]);
 
     const newFicha = (prev, matrix) => {
         const tempX = 0;
@@ -190,17 +197,22 @@ const Tetris = () => {
     }, []);
 
     useEffect(() => {
-        if (isEndGame) {
+        if (isEndGame || isPaused) {
             return;
         }
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
         }, 500);
         return () => clearInterval(intervalId);
-    }, [changePosition, isEndGame]);
+    }, [changePosition, isEndGame, isPaused]);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
+            if (event.key === 'p' || event.key === 'P' || event.key === 'Escape') {
+                togglePause();
+                return;
+            }
+            if (isPaused) return;
             if (event.key === 'ArrowRight') {
                 manualMovement(1);
             } else if (event.key === 'ArrowLeft') {
@@ -215,7 +227,7 @@ const Tetris = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [manualMovement, manualMovementVertical, flipFicha]);
+    }, [manualMovement, manualMovementVertical, flipFicha, isPaused, togglePause]);
 
     const renderItem = (col) => {
         if (col !== 0) {
@@ -239,25 +251,33 @@ const Tetris = () => {
         <div className='game' data-testid="tetris-component">
             <div className='tetris'>
                 <div className='matrix'>
-                    {renderMatrix(fichaMetadata.matrix)}
+                    {renderMatrix(isPaused ? fichaMatrix : fichaMetadata.matrix)}
+                    {isPaused && (
+                        <div className='pause-overlay' data-testid="pause-overlay">Pausado</div>
+                    )}
                 </div>
                 <div className='controls'>
+                    <div className='controls__pause'>
+                        <button data-testid="pause-button" onClick={togglePause} disabled={isEndGame}>
+                            {isPaused ? 'Reanudar' : 'Pausa'}
+                        </button>
+                    </div>
                     <div className='controls__movement'>
                         <div className='controls_row'>
-                            <button onClick={() => manualMovement(-1)}>Left</button>
-                            <button onClick={() => manualMovement(1)}>Right</button>
+                            <button onClick={() => !isPaused && manualMovement(-1)}>Left</button>
+                            <button onClick={() => !isPaused && manualMovement(1)}>Right</button>
                         </div>
                         <div className='controls__row'>
-                            <button data-testid="down-button" onClick={() => manualMovementVertical(1)}>Down</button>
+                            <button data-testid="down-button" onClick={() => !isPaused && manualMovementVertical(1)}>Down</button>
                         </div>
                     </div>
                     <div className='controls__flip'>
-                        <button onClick={() => flipFicha()}>Flip</button>
+                        <button onClick={() => !isPaused && flipFicha()}>Flip</button>
                     </div>
                 </div>
             </div>
             <div className='next'>
-                {renderMatrix(fichaMetadata.nextFicha)}
+                {!isPaused && renderMatrix(fichaMetadata.nextFicha)}
             </div>
         </div>
     )
