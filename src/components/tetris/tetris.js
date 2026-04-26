@@ -6,7 +6,6 @@ const getRandomFicha = () => {
     const fichaId = Math.floor(Math.random() * fichas.length)
     return fichas[fichaId];
 }
-const ficha = getRandomFicha();
 
 const createArray = (count, item) => {
     const arr = [];
@@ -23,12 +22,14 @@ const fichaMatrix = [
     ...tetrisMatrix
 ];
 
+const createEmptyMatrix = () => createArray(20, createArray(10, 0));
+
 const initialFichaMetadata = {
     x: 0,
     y: 5,
-    matrix: fichaMatrix,
-    ficha,
-    nextFicha: getRandomFicha(),
+    matrix: createEmptyMatrix(),
+    ficha: null,
+    nextFicha: null,
 };
 
 const moveFicha = (matrix, ficha, x, y, reset) => {
@@ -71,16 +72,36 @@ const flip = (originalFicha) => {
     return tempFicha;
 }
 
+// Game status values: 'idle' | 'playing' | 'paused' | 'gameover'
 const Tetris = () => {
     const [fichaMetadata, setFichaMetadata] = useState(initialFichaMetadata);
-    const [isEndGame, setIsEndGame] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
+    const [gameStatus, setGameStatus] = useState('idle');
+
+    const startGame = useCallback(() => {
+        const firstFicha = getRandomFicha();
+        const nextFicha = getRandomFicha();
+        const tempX = 0;
+        const tempY = 5;
+        const emptyMatrix = createEmptyMatrix();
+        const matrix = moveFicha(emptyMatrix, firstFicha, tempX, tempY, false);
+
+        setFichaMetadata({
+            x: tempX,
+            y: tempY,
+            matrix,
+            ficha: firstFicha,
+            nextFicha,
+        });
+        setGameStatus('playing');
+    }, []);
 
     const togglePause = useCallback(() => {
-        if (!isEndGame) {
-            setIsPaused(prev => !prev);
-        }
-    }, [isEndGame]);
+        setGameStatus(prev => {
+            if (prev === 'playing') return 'paused';
+            if (prev === 'paused') return 'playing';
+            return prev;
+        });
+    }, []);
 
     const newFicha = (prev, matrix) => {
         const tempX = 0;
@@ -122,7 +143,7 @@ const Tetris = () => {
             if (coalition) {
                 const fichaToRender = moveFicha(fichaMatrix, prev.ficha, 0, 5);
                 if (checkCoalition(tempMatrixWithFicha, fichaToRender)) {
-                    setIsEndGame(true);
+                    setGameStatus('gameover');
                 }
                 return newFicha(prev, completeLine(prev));
             }
@@ -196,23 +217,40 @@ const Tetris = () => {
         });
     }, []);
 
+    // Game over → idle transition
     useEffect(() => {
-        if (isEndGame || isPaused) {
+        if (gameStatus === 'gameover') {
+            const timeoutId = setTimeout(() => {
+                setFichaMetadata(initialFichaMetadata);
+                setGameStatus('idle');
+            }, 1000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [gameStatus]);
+
+    // Gravity: only run when playing
+    useEffect(() => {
+        if (gameStatus !== 'playing') {
             return;
         }
         const intervalId = setInterval(() => {
             setFichaMetadata(prev => changePosition(prev))
         }, 500);
         return () => clearInterval(intervalId);
-    }, [changePosition, isEndGame, isPaused]);
+    }, [changePosition, gameStatus]);
 
+    // Keyboard controls
     useEffect(() => {
         const handleKeyDown = (event) => {
+            // Pause toggle only works when playing or paused
             if (event.key === 'p' || event.key === 'P' || event.key === 'Escape') {
-                togglePause();
+                if (gameStatus === 'playing' || gameStatus === 'paused') {
+                    togglePause();
+                }
                 return;
             }
-            if (isPaused) return;
+            // Game inputs only work when playing
+            if (gameStatus !== 'playing') return;
             if (event.key === 'ArrowRight') {
                 manualMovement(1);
             } else if (event.key === 'ArrowLeft') {
@@ -227,7 +265,7 @@ const Tetris = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [manualMovement, manualMovementVertical, flipFicha, isPaused, togglePause]);
+    }, [manualMovement, manualMovementVertical, flipFicha, gameStatus, togglePause]);
 
     const renderItem = (col) => {
         if (col !== 0) {
@@ -247,38 +285,55 @@ const Tetris = () => {
             </div>
         });
     };
+
+    const isIdle = gameStatus === 'idle';
+    const isPaused = gameStatus === 'paused';
+    const isGameOver = gameStatus === 'gameover';
+
     return (
         <div className='game' data-testid="tetris-component">
             <div className='tetris'>
                 <div className='matrix'>
-                    {renderMatrix(isPaused ? fichaMatrix : fichaMetadata.matrix)}
+                    {renderMatrix(isPaused ? fichaMatrix : (isIdle ? createEmptyMatrix() : fichaMetadata.matrix))}
                     {isPaused && (
                         <div className='pause-overlay' data-testid="pause-overlay">Pausado</div>
                     )}
+                    {isGameOver && (
+                        <div className='pause-overlay' data-testid="gameover-overlay">Game Over</div>
+                    )}
                 </div>
-                <div className='controls'>
-                    <div className='controls__pause'>
-                        <button data-testid="pause-button" onClick={togglePause} disabled={isEndGame}>
-                            {isPaused ? 'Reanudar' : 'Pausa'}
-                        </button>
+                {isIdle && (
+                    <div className='controls__start'>
+                        <button data-testid="start-button" onClick={startGame}>Iniciar</button>
                     </div>
-                    <div className='controls__movement'>
-                        <div className='controls_row'>
-                            <button onClick={() => !isPaused && manualMovement(-1)}>Left</button>
-                            <button onClick={() => !isPaused && manualMovement(1)}>Right</button>
+                )}
+                {!isIdle && (
+                    <div className='controls'>
+                        <div className='controls__pause'>
+                            <button data-testid="pause-button" onClick={togglePause} disabled={isGameOver}>
+                                {isPaused ? 'Reanudar' : 'Pausa'}
+                            </button>
                         </div>
-                        <div className='controls__row'>
-                            <button data-testid="down-button" onClick={() => !isPaused && manualMovementVertical(1)}>Down</button>
+                        <div className='controls__movement'>
+                            <div className='controls_row'>
+                                <button onClick={() => gameStatus === 'playing' && manualMovement(-1)}>Left</button>
+                                <button onClick={() => gameStatus === 'playing' && manualMovement(1)}>Right</button>
+                            </div>
+                            <div className='controls__row'>
+                                <button data-testid="down-button" onClick={() => gameStatus === 'playing' && manualMovementVertical(1)}>Down</button>
+                            </div>
+                        </div>
+                        <div className='controls__flip'>
+                            <button onClick={() => gameStatus === 'playing' && flipFicha()}>Flip</button>
                         </div>
                     </div>
-                    <div className='controls__flip'>
-                        <button onClick={() => !isPaused && flipFicha()}>Flip</button>
-                    </div>
+                )}
+            </div>
+            {!isIdle && !isPaused && (
+                <div className='next'>
+                    {fichaMetadata.nextFicha && renderMatrix(fichaMetadata.nextFicha)}
                 </div>
-            </div>
-            <div className='next'>
-                {!isPaused && renderMatrix(fichaMetadata.nextFicha)}
-            </div>
+            )}
         </div>
     )
 }

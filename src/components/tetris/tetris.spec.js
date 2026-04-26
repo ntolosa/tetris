@@ -13,11 +13,48 @@ describe('Tetris Component', () => {
         expect(tetrisComponent).toBeInTheDocument();
     });
 
-    test('pause button renders with "Pausa" label', () => {
+    test('game renders in idle state on load with start button visible', () => {
         // Arrange
         render(<Tetris />);
 
         // Act
+        const startButton = screen.getByTestId('start-button');
+
+        // Assert
+        expect(startButton).toBeInTheDocument();
+        expect(startButton).toHaveTextContent('Iniciar');
+    });
+
+    test('game controls are not visible before start', () => {
+        // Arrange
+        render(<Tetris />);
+
+        // Assert
+        expect(screen.queryByTestId('pause-button')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('down-button')).not.toBeInTheDocument();
+    });
+
+    test('clicking start button begins the game and hides start button', () => {
+        // Arrange
+        render(<Tetris />);
+        const startButton = screen.getByTestId('start-button');
+
+        // Act
+        fireEvent.click(startButton);
+
+        // Assert
+        expect(screen.queryByTestId('start-button')).not.toBeInTheDocument();
+        expect(screen.getByTestId('pause-button')).toBeInTheDocument();
+        expect(screen.getByTestId('down-button')).toBeInTheDocument();
+    });
+
+    test('pause button renders with "Pausa" label after game starts', () => {
+        // Arrange
+        render(<Tetris />);
+        const startButton = screen.getByTestId('start-button');
+
+        // Act
+        fireEvent.click(startButton);
         const pauseButton = screen.getByTestId('pause-button');
 
         // Assert
@@ -28,6 +65,7 @@ describe('Tetris Component', () => {
     test('clicking pause button shows overlay and changes label to "Reanudar"', () => {
         // Arrange
         render(<Tetris />);
+        fireEvent.click(screen.getByTestId('start-button'));
         const pauseButton = screen.getByTestId('pause-button');
 
         // Act
@@ -39,56 +77,4 @@ describe('Tetris Component', () => {
         expect(overlay).toHaveTextContent('Pausado');
         expect(pauseButton).toHaveTextContent('Reanudar');
     });
-/*
-    test('moves the ficha to the right', () => {
-        // Arrange
-        const matrix = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
-        const ficha = 'I';
-        const x = 0;
-        const y = 0;
-        const reset = false;
-
-        // Act
-        const updatedMatrix = moveFicha(matrix, ficha, x, y, reset);
-
-        // Assert
-        expect(updatedMatrix).toEqual([[0, 0, 0], [0, 1, 1], [0, 0, 0]]);
-    });
-
-    test('checks coalition between previous and next matrix', () => {
-        // Arrange
-        const previousMatrix = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
-        const nextMatrix = [[0, 0, 0], [0, 1, 1], [0, 0, 0]];
-
-        // Act
-        const hasCoalition = checkCoalition(previousMatrix, nextMatrix);
-
-        // Assert
-        expect(hasCoalition).toBe(true);
-    });
-
-    test('flips the original ficha', () => {
-        // Arrange
-        const originalFicha = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
-
-        // Act
-        const flippedFicha = flip(originalFicha);
-
-        // Assert
-        expect(flippedFicha).toEqual([[0, 1, 0], [0, 1, 0], [0, 1, 0]]);
-    });
-
-    //add a test to move the ficha down using react events to click the down button
-    test('moves the ficha down', () => {
-        // Arrange
-        render(<Tetris />);
-        const downButton = screen.getByTestId('down-button');
-
-        // Act
-        downButton.click();
-
-        // Assert
-        const updatedMatrix = screen.getByTestId('tetris-component');
-        expect(updatedMatrix).toEqual([[0, 0, 0], [0, 1, 1], [0, 0, 0]]);
-    });*/
 });
