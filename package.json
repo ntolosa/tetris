@@ -95,6 +95,7 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
+      "!src/reportWebVitals.js",
       "!src/**/*.d.ts"
     ],
     "setupFiles": [
