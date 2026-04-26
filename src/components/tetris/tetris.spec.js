@@ -88,6 +88,19 @@ describe('Tetris Component', () => {
         expect(screen.queryByTestId('pause-overlay')).not.toBeInTheDocument();
         const pauseButtonResumed = screen.getByTestId('pause-button');
         expect(pauseButtonResumed).toHaveTextContent('Pausa');
+        
+        // Act again with Escape
+        act(() => {
+            fireEvent.keyDown(window, { key: 'Escape' });
+        });
+
+        // Assert
+        expect(screen.getByTestId('pause-overlay')).toBeInTheDocument();
+        
+        // Resume
+        act(() => {
+            fireEvent.keyDown(window, { key: 'Escape' });
+        });
         expect(mathRandomSpy).toHaveBeenCalledTimes(0);
     });
 
