@@ -52,6 +52,30 @@
     &__row {
         display: block;
     }
+
+    &__start {
+        text-align: center;
+        margin-top: 20px;
+
+        button {
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #333;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+
+            &:hover {
+                background-color: #45a049;
+            }
+
+            &:active {
+                background-color: #3d8b40;
+            }
+        }
+    }
 }
 
 .item {
