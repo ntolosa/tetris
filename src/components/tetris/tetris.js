@@ -10,7 +10,7 @@ const getRandomFicha = () => {
 const createArray = (count, item) => {
     const arr = [];
     for (let i = 0; i < count; i++) {
-        arr.push(structuredClone(item));
+        arr.push(Array.isArray(item) ? [...item] : item);
     }
     return arr;
 }
@@ -33,7 +33,7 @@ const initialFichaMetadata = {
 };
 
 const moveFicha = (matrix, ficha, x, y, reset) => {
-    const tempMatrix = structuredClone(matrix);
+    const tempMatrix = matrix.map(r => [...r]);
     for (let i = 0; i < ficha.length; i++) {
         for (let j = 0; j < ficha[i].length; j++) {
             if (reset) {
@@ -125,19 +125,20 @@ const Tetris = () => {
             return tempMatrix;
         }, []);
         while (matrixResult.length < initialFichaMetadata.matrix.length) {
-            matrixResult.unshift(structuredClone(row));
+            matrixResult.unshift([...row]);
         }
         return matrixResult;
     };
 
     const changePosition = useCallback((prev) => {
-        let tempX = prev.x;
-        let tempY = prev.y;
-        if (tempX + prev.ficha.length < prev.matrix.length) {
-            const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, tempX, tempY, true);
-            tempX = tempX + 1;
-            const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, tempX, tempY, false);
-            const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, tempX, tempY, false);
+        try {
+            let tempX = prev.x;
+            let tempY = prev.y;
+            if (tempX + prev.ficha.length < prev.matrix.length) {
+                const tempMatrixNoFicha = moveFicha(prev.matrix, prev.ficha, tempX, tempY, true);
+                tempX = tempX + 1;
+                const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, tempX, tempY, false);
+                const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, tempX, tempY, false);
 
             const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
             if (coalition) {
@@ -146,16 +147,20 @@ const Tetris = () => {
                     setGameStatus('gameover');
                 }
                 return newFicha(prev, completeLine(prev));
-            }
+                }
 
-            return {
-                ...prev,
-                x: tempX,
-                y: tempY,
-                matrix: tempMatrix,
-            };
-        } else {
-            return newFicha(prev, completeLine(prev));
+                return {
+                    ...prev,
+                    x: tempX,
+                    y: tempY,
+                    matrix: tempMatrix,
+                };
+            } else {
+                return newFicha(prev, completeLine(prev));
+            }
+        } catch (e) {
+            console.error("CHANGEPOSITION CRASHED:", e);
+            return prev;
         }
     }, []);
 
