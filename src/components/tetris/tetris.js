@@ -140,13 +140,11 @@ const Tetris = () => {
                 const tempMatrixWithFicha = moveFicha(fichaMatrix, prev.ficha, tempX, tempY, false);
                 const tempMatrix = moveFicha(tempMatrixNoFicha, prev.ficha, tempX, tempY, false);
 
-            const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
-            if (coalition) {
-                const fichaToRender = moveFicha(fichaMatrix, prev.ficha, 0, 5);
-                if (checkCoalition(tempMatrixWithFicha, fichaToRender)) {
-                    setGameStatus('gameover');
-                }
-                return newFicha(prev, completeLine(prev));
+                const coalition = checkCoalition(tempMatrixNoFicha, tempMatrixWithFicha);
+                if (coalition) {
+                    const fichaToRender = moveFicha(fichaMatrix, prev.ficha, 0, 5);
+                    const isGameOver = checkCoalition(tempMatrixWithFicha, fichaToRender);
+                    return { ...newFicha(prev, completeLine(prev)), isGameOver };
                 }
 
                 return {
@@ -232,6 +230,13 @@ const Tetris = () => {
             return () => clearTimeout(timeoutId);
         }
     }, [gameStatus]);
+
+    // Check for gameover from fichaMetadata
+    useEffect(() => {
+        if (fichaMetadata.isGameOver && gameStatus === 'playing') {
+            setGameStatus('gameover');
+        }
+    }, [fichaMetadata.isGameOver, gameStatus]);
 
     // Gravity: only run when playing
     useEffect(() => {
