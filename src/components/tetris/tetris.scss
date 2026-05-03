@@ -1,0 +1,107 @@
+@mixin size {
+    width: 25px;
+    height: 25px;
+}
+
+.game {
+    display: flex;
+    flex-direction: row;
+}
+
+.tetris {
+    display: flex;
+    flex-direction: column;
+}
+
+.matrix {
+    border: solid;
+    position: relative;
+}
+
+.row {
+    display: flex;
+    width: fit-content;
+}
+
+.col {
+    @include size();
+}
+
+.controls {
+    margin: auto;
+    display: flex;
+    width: 100%;
+    margin-top: 15px;
+
+    &__movement {
+        width: 75%;
+        text-align: center;
+    }
+
+    &__flip {
+        width: 25%;
+        text-align: center;
+    }
+
+    &__pause {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    &__row {
+        display: block;
+    }
+
+    &__start {
+        text-align: center;
+        margin-top: 20px;
+
+        button {
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #333;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+
+            &:hover {
+                background-color: #45a049;
+            }
+
+            &:active {
+                background-color: #3d8b40;
+            }
+        }
+    }
+}
+
+.item {
+    border-color: black;
+    border-style: solid;
+    background-color: yellow;
+    @include size();
+}
+
+.next {
+    margin-left: 5px;
+    width: 100px;
+}
+
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
